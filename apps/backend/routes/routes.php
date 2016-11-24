@@ -121,6 +121,16 @@ $wechat->add('/authorization', ['action' => 'authorization'])->setName('backend/
 $wechat->add('/unAuthorization', ['action' => 'unAuthorization'])->setName('backend/wechat/unAuthorization');
 $router->mount($wechat);
 
+$blog = new \Phalcon\Mvc\Router\Group(['module' => 'backend','namespace' => 'Backend\Controllers',
+    'controller' => 'blog']);
+$blog->setPrefix('/backend/blog')->beforeMatch([new Filter($di), 'authLogin']);
+$blog->add('/category', ['action' => 'category'])->setName('backend/blog/category');
+$blog->add('/category/add', ['action' => 'addCategory'])->setName('backend/blog/category/add');
+$blog->add('/category/repair', ['action' => 'repairCategory'])->setName('backend/blog/category/repair');
+$blog->add('/category/delete', ['action' => 'deleteCategory'])->setName('backend/blog/category/delete');
+$blog->add('/category/edit', ['action' => 'editCategory'])->setName('backend/blog/category/edit');
+$router->mount($blog);
+
 $payment = new \Phalcon\Mvc\Router\Group(['module' => 'backend','namespace' => 'Backend\Controllers',
     'controller' => 'payment']);
 $payment->setPrefix('/backend/payment')->beforeMatch([new Filter($di), 'authLogin']);

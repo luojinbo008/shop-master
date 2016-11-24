@@ -45,12 +45,12 @@
             <h4>热门商品</h4>
         </a>
         <a href="#" class="col-xs-4">
-            <img class="img-responsive" src="{{ static_url }}/wechat/ui/images/icon_tm.png">
-            <h4>公司简介</h4>
-        </a>
-        <a href="#" class="col-xs-4">
             <img class="img-responsive" src="{{ static_url }}/wechat/ui/images/icon_pp.png">
             <h4>积分商城</h4>
+        </a>
+        <a href="#" class="col-xs-4">
+            <img class="img-responsive" src="{{ static_url }}/wechat/ui/images/icon_tm.png">
+            <h4>公司简介</h4>
         </a>
         <a href="#" class="col-xs-4">
             <img class="img-responsive" src="{{ static_url }}/wechat/ui/images/theme.png">
