@@ -158,7 +158,6 @@ class CategoryController extends BaseController
                 'get_filter'    => 1,
                 'category_id'   => $category_id,
                 'get_store'     => 1,
-                'get_filter'    => 1
             ]);
             $result = $this->httpClient->request("GET");
             if (!$result || 0 != $result['code']) {

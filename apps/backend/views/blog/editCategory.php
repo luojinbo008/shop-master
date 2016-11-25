@@ -8,7 +8,7 @@
     </h3>
 </div>
 <div class="panel-body">
-    <form action="{{ url({'for' : 'backend/blog/category/add'}) }}" method="post" enctype="multipart/form-data" id="form-blog-category" class="form-horizontal">
+    <form action="{{ url({'for' : 'backend/blog/category/edit'}) }}" method="post" enctype="multipart/form-data" id="form-blog-category" class="form-horizontal">
         <ul class="nav nav-tabs">
             <li class="active">
                 <a href="#tab-general" data-toggle="tab">常规</a>
@@ -23,6 +23,8 @@
                     <div class="form-group required">
                         <label class="col-sm-2 control-label" for="input-name">博客分类名称</label>
                         <div class="col-sm-10">
+                            <input type="hidden" name="blog_category_id" value="{% if blog_category_id is defined %}{{blog_category_id}}{% endif %}"
+                                class="form-control" />
                             <input type="text" name="blog_category_name" value="{% if blog_category_name is defined %}{{blog_category_name}}{% endif %}"
                                    placeholder="博客分类名称" id="input-name" class="form-control" />
                             {% if error_name is defined %}

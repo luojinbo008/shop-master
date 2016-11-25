@@ -128,6 +128,7 @@ $blog->add('/category', ['action' => 'category'])->setName('backend/blog/categor
 $blog->add('/category/add', ['action' => 'addCategory'])->setName('backend/blog/category/add');
 $blog->add('/category/repair', ['action' => 'repairCategory'])->setName('backend/blog/category/repair');
 $blog->add('/category/delete', ['action' => 'deleteCategory'])->setName('backend/blog/category/delete');
+$blog->add('/category/autoComplete', ['action' => 'autoCategoryComplete'])->setName('backend/blog/category/autoComplete');
 $blog->add('/category/edit', ['action' => 'editCategory'])->setName('backend/blog/category/edit');
 $router->mount($blog);
 
