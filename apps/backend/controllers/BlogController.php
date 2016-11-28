@@ -99,6 +99,10 @@ class BlogController extends BaseController
         ]);
     }
 
+    /**
+     * 编辑分类
+     * @throws \Exception
+     */
     public function editCategoryAction()
     {
         $data = $this->request->getPost();
@@ -199,6 +203,52 @@ class BlogController extends BaseController
     }
 
     /**
+     * 重构分类
+     */
+    public function repairCategoryAction()
+    {
+        $this->httpClient->setApiName("content/repairBlogCategory.json");
+        $result = $this->httpClient->request("GET");
+        if (!$result || 0 != $result['code']) {
+            if (!$result) {
+                throw new \Exception("接口网络错误，联系管理员！");
+            } else {
+                throw new \Exception($result["message"]);
+            }
+        }
+        $this->layoutMessage("重构博客分类成功！");
+        return $this->response->redirect([
+            'for' => 'backend/blog/category'
+        ]);
+    }
+
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
+    public function deleteCategoryAction()
+    {
+        $data = $this->request->get();
+        if (isset($data['selected'])) {
+            $this->httpClient->setApiName("content/deleteBlogCategory.json");
+            $this->httpClient->setParameters([
+                'blog_category_ids' => $data['selected'],
+            ]);
+            $result = $this->httpClient->request("GET");
+            if (!$result || 0 != $result['code']) {
+                if (!$result) {
+                    $error_warning = "接口网络错误，联系管理员！";
+                } else {
+                    $error_warning = $result["message"];
+                }
+                throw new \Exception($error_warning);
+            }
+            return ["status" => 0, "info" => "删除成功！", "data" => []];
+        }
+        return ["info" => "删除失败！", "data" => []];
+    }
+
+    /**
      * 获得博客分类列表
      * @return array
      * @throws \Exception
@@ -238,4 +288,15 @@ class BlogController extends BaseController
         array_multisort($sort_order, SORT_ASC, $json);
         return ["status" => 0, "info" => "success", "data" => $json];
     }
+
+    /**
+     * 获得博客列表
+     * @return array
+     * @throws \Exception
+     */
+    public function listAction()
+    {
+
+    }
+
 }
