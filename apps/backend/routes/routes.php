@@ -133,7 +133,7 @@ $blog->add('/category/autoComplete', ['action' => 'autoCategoryComplete'])->setN
 $blog->add('/category/edit', ['action' => 'editCategory'])->setName('backend/blog/category/edit');
 //博客文章
 $blog->add('/list', ['action' => 'list'])->setName('backend/blog/list');
-
+$blog->add('/delete', ['action' => 'delete'])->setName('backend/blog/delete');
 $router->mount($blog);
 
 $payment = new \Phalcon\Mvc\Router\Group(['module' => 'backend','namespace' => 'Backend\Controllers',

@@ -296,7 +296,21 @@ class BlogController extends BaseController
      */
     public function listAction()
     {
-
+        if ($this->request->isAjax() === true) {
+            $iDisplayStart = $this->request->get("iDisplayStart");
+            $iDisplayLength = $this->request->get("iDisplayLength");
+            $this->httpClient->setApiName("content/getBlogList.json");
+            $this->httpClient->setParameters([
+                'start' => $iDisplayStart,
+                'limit' => $iDisplayLength,
+            ]);
+            $result = $this->httpClient->request("GET");
+            if (!$result || 0 != $result['code']){
+                return ["iTotalRecords"=> 0, "iTotalDisplayRecords"=> 0, 'aaData' => []];
+            }
+            return ["iTotalRecords"=> $result['data']['count'], "iTotalDisplayRecords"=> $result['data']['count'],
+                'aaData' => $result['data']['list']];
+        }
     }
 
 }
