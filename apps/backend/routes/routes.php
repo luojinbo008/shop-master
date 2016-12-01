@@ -134,6 +134,8 @@ $blog->add('/category/edit', ['action' => 'editCategory'])->setName('backend/blo
 //博客文章
 $blog->add('/list', ['action' => 'list'])->setName('backend/blog/list');
 $blog->add('/delete', ['action' => 'delete'])->setName('backend/blog/delete');
+$blog->add('/add', ['action' => 'add'])->setName('backend/blog/add');
+$blog->add('/autoComplete', ['action' => 'autoComplete'])->setName('backend/blog/autoComplete');
 $router->mount($blog);
 
 $payment = new \Phalcon\Mvc\Router\Group(['module' => 'backend','namespace' => 'Backend\Controllers',

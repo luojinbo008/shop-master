@@ -29,10 +29,10 @@
                         <option value="*">全部</option>
                         {% if filter_status is not defined or (filter_status is defined and 1 == filter_status) %}
                             <option value="1" selected="selected">开启</option>
-                            <option value="0">关闭</option>
+                            <option value="0">停用</option>
                         {% else %}
                             <option value="1">开启</option>
-                            <option value="0" selected="selected">关闭</option>
+                            <option value="0" selected="selected">停用</option>
                         {% endif %}
                     </select>
                 </div>
@@ -101,7 +101,20 @@
                             return html;
                         }},
                         { "mDataProp": "title","bSortable": false},
-                        { "mDataProp": "status","bSortable": false},
+                        { "mDataProp": "status","bSortable": false, "fnRender" : function (obj) {
+                            var name = '未知状态';
+                            switch (obj.aData.status) {
+                                case '0':
+                                    name = '停用';
+                                    break;
+                                case '1':
+                                    name = '开启';
+                                    break;
+                                default:
+                                    name = '未知状态';
+                            }
+                            return name;
+                        }},
                         { "mDataProp": "edit_id", "sClass" : "text-center", "bSortable": false, "fnRender": function(obj) {
                             var html = '';
                             {% for child in currentMenu[currentMenu|length - 1]['children']['table'] %}

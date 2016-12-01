@@ -7,11 +7,10 @@
  */
 
 namespace Backend\Controllers;
-use Library\Util\Util;
-
+use Library\Util\Util,
+    Library\Models\User\UserModel;
 class BlogController extends BaseController
 {
-
     /**
      * 分类列表
      */
@@ -313,4 +312,128 @@ class BlogController extends BaseController
         }
     }
 
+    /**
+     * 新增博客
+     * @throws \Exception
+     */
+    public function addAction()
+    {
+        $data = $this->request->getPost();
+        $placeholder = $thumb = Util::resizeImage('no_image.png', 100, 100);
+        if (!empty($data)) {
+            if (empty($data['title']) || empty($data['meta_title'])) {
+                $this->layoutMessage("必填项不能为空！", 1);
+                if (empty($data['title'])) {
+                    $this->view->setVars([
+                        'error_title' => '博客标题不能为空！'
+                    ]);
+                }
+                if (empty($data['meta_title'])) {
+                    $this->view->setVars([
+                        'error_meta_title'  => 'Meta Tag 标题不能为空！'
+                    ]);
+                }
+                $product_relateds = [];
+                if (isset($data['product_related']) && !empty($data['product_related'])) {
+                    $this->httpClient->setApiName("product/getProductList.json");
+                    $this->httpClient->setParameters([
+                        'filter_product_ids' => $data['product_related'],
+                    ]);
+                    $result = $this->httpClient->request("GET");
+                    if (!$result || 0 != $result['code']) {
+                        if (!$result) {
+                            throw new \Exception("接口网络错误，联系管理员！");
+                        } else {
+                            throw new \Exception($result["message"]);
+                        }
+                    }
+                    $product_relateds = $result['data']['list'];
+                }
+                $blog_relateds = [];
+                if (isset($data['blog_related']) && !empty($data['blog_related'])) {
+                    $this->httpClient->setApiName("content/getBlogList.json");
+                    $this->httpClient->setParameters([
+                        'filter_blog_ids' => $data['blog_related'],
+                    ]);
+                    $result = $this->httpClient->request("GET");
+                    if (!$result || 0 != $result['code']) {
+                        if (!$result) {
+                            throw new \Exception("接口网络错误，联系管理员！");
+                        } else {
+                            throw new \Exception($result["message"]);
+                        }
+                    }
+                    $blog_relateds = $result['data']['list'];
+                }
+                if ($data['image']) {
+                    $thumb = Util::resizeImage($data['image'], 100, 100);
+                }
+                $this->view->setVars($data);
+                $this->view->setVars([
+                    'blog_relateds'     => $blog_relateds,
+                    'product_relateds'  => $product_relateds,
+                ]);
+            }
+        } else {
+            $this->view->setVars([
+                'user_id' => $this->userid
+            ]);
+        }
+        $this->httpClient->setApiName("content/getBlogCategoryList.json");
+        $result = $this->httpClient->request("GET");
+        if (!$result || 0 != $result['code']) {
+            throw new \Exception(!$result ? "系统错误,联系管理员" : $result['message']);
+        }
+        $blog_categories = $result['data']['list'];
+        $stores = $this->getStores();
+        $model = new UserModel();
+        $users = $model->getUserList($this->appid);
+        $this->view->setVars([
+            'users'                 => $users,
+            'stores'                => $stores,
+            'blog_categories'       => $blog_categories,
+            'thumb'                 => $thumb,
+            'placeholder'           => $placeholder
+        ]);
+    }
+
+    /**
+     * @return array
+     * @throws \Exception
+     */
+    public function autoCompleteAction()
+    {
+        $json = [];
+        $data = $this->request->get();
+        if (isset($data['filter_name'])) {
+            $this->httpClient->setApiName("content/getBlogList.json");
+            $this->httpClient->setParameters([
+                'filter_name' => $data['filter_name'],
+                'sort'        => 'name',
+                'order'       => 'ASC',
+                'start'       => 0,
+                'limit'       => 10
+            ]);
+            $result = $this->httpClient->request('GET');
+            if (!$result || 0 != $result['code']) {
+                if (!$result) {
+                    throw new \Exception("接口网络错误，联系管理员！");
+                } else {
+                    throw new \Exception($result["message"]);
+                }
+            }
+            foreach ($result['data']['list'] as $result) {
+                $json[] = [
+                    'blog_id'   => $result['blog_id'],
+                    'name'      => strip_tags(html_entity_decode($result['title'], ENT_QUOTES, 'UTF-8'))
+                ];
+            }
+        }
+        $sort_order = [];
+        foreach ($json as $key => $value) {
+            $sort_order[$key] = $value['name'];
+        }
+        array_multisort($sort_order, SORT_ASC, $json);
+        return ["status" => 0, "info" => "success", "data" => $json];
+    }
 }

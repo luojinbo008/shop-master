@@ -384,7 +384,7 @@ class ProductController extends BaseController
             if (isset($data['limit'])) {
                 $limit = $data['limit'];
             } else {
-                $limit = 5;
+                $limit = 10;
             }
             $filter_data = [
                 'get_option'    => 1,

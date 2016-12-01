@@ -113,8 +113,8 @@
                     <label class="col-sm-2 control-label" for="input-status">状态</label>
                     <div class="col-sm-10">
                         <select name="status" id="input-status" class="form-control">
-                            <option value="0" {% if sort_order is defined and sort_order == 0 %}selected{% endif %}>关闭</option>
-                            <option value="1" {% if sort_order is defined and sort_order == 1 %}selected{% endif %}>开启</option>
+                            <option value="0" {% if status is defined and status == 0 %}selected{% endif %}>关闭</option>
+                            <option value="1" {% if status is defined and status == 1 %}selected{% endif %}>开启</option>
                         </select>
                     </div>
                 </div>

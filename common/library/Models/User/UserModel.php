@@ -31,4 +31,17 @@ class UserModel extends BaseModel
     {
         return 'mcc_user';
     }
+
+    /**
+     * 获得用户列表
+     * @return mixed
+     */
+    public function getUserList($appid)
+    {
+        $userList = self::find("status = '1' AND appid = " . (int)$appid);
+        if (!$userList) {
+            return [];
+        }
+        return $userList->toArray();
+    }
 } 
