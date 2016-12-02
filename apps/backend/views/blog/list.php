@@ -26,7 +26,7 @@
                         状态
                     </label>
                     <select title="filter_status" id="input-status" class="form-control">
-                        <option value="*">全部</option>
+                        <option value="2">全部</option>
                         {% if filter_status is not defined or (filter_status is defined and 1 == filter_status) %}
                             <option value="1" selected="selected">开启</option>
                             <option value="0">停用</option>
@@ -42,7 +42,7 @@
                     <label class="control-label" for="input-status">
                         &nbsp;
                     </label>
-                    <button type="button" id="button-filter" onclick="search();" class="btn btn-primary pull-left form-control">
+                    <button type="button" id="button-filter" onclick="TableManaged.init();" class="btn btn-primary pull-left form-control">
                         <i class="fa fa-search"></i> 筛选
                     </button>
                 </div>
@@ -84,7 +84,7 @@
 <script type="text/javascript" src="{{ static_url }}/backend/src/jquery/jquery-form.js"></script>
 <script type="text/javascript">
     // 绑定删除事件
-    $("#backend-blog-category-delete").click(function () {
+    $("#backend-blog-delete").click(function () {
         confirm('确定删除！') ? del() : false;
     });
     var TableManaged = function () {
@@ -127,10 +127,15 @@
                         }},
                     ],
                     "iDisplayLength":12,
+                    'bAutoWidth': false,
                     "bServerSide": true,
                     "bPaginate" : true,
                     "bDestroy":true,
                     "sAjaxSource" : "{{ url({'for': 'backend/blog/list'}) }}",
+                    "fnServerParams": function (aoData) {
+                        aoData.push({"name": "filter_title", "value": $("#input-title").val()});
+                        aoData.push({"name": "filter_status", "value": $("#input-status").val()});
+                    },
                     "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
                     "sPaginationType": "bootstrap",
                     "oLanguage": {
@@ -154,7 +159,7 @@
     });
 
     function del(){
-        $("#form-blog-category").ajaxSubmit({
+        $("#form-blog").ajaxSubmit({
             type:"post",
             url:"{{ url({'for' : 'backend/blog/delete'}) }}",
             success: function(res) {

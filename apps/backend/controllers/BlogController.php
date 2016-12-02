@@ -299,10 +299,19 @@ class BlogController extends BaseController
             $iDisplayStart = $this->request->get("iDisplayStart");
             $iDisplayLength = $this->request->get("iDisplayLength");
             $this->httpClient->setApiName("content/getBlogList.json");
-            $this->httpClient->setParameters([
+            $params = [
                 'start' => $iDisplayStart,
                 'limit' => $iDisplayLength,
-            ]);
+            ];
+            $filter_title = $this->request->get("filter_title");
+            if ($filter_title) {
+                $params['filter_title'] = $this->request->get("filter_title");
+            }
+            $filter_status = (int)$this->request->get("filter_status");
+            if (2 != $filter_status) {
+                $params['filter_status'] = $filter_status;
+            }
+            $this->httpClient->setParameters($params);
             $result = $this->httpClient->request("GET");
             if (!$result || 0 != $result['code']){
                 return ["iTotalRecords"=> 0, "iTotalDisplayRecords"=> 0, 'aaData' => []];
@@ -333,47 +342,85 @@ class BlogController extends BaseController
                         'error_meta_title'  => 'Meta Tag 标题不能为空！'
                     ]);
                 }
-                $product_relateds = [];
-                if (isset($data['product_related']) && !empty($data['product_related'])) {
-                    $this->httpClient->setApiName("product/getProductList.json");
-                    $this->httpClient->setParameters([
-                        'filter_product_ids' => $data['product_related'],
-                    ]);
-                    $result = $this->httpClient->request("GET");
-                    if (!$result || 0 != $result['code']) {
-                        if (!$result) {
-                            throw new \Exception("接口网络错误，联系管理员！");
-                        } else {
-                            throw new \Exception($result["message"]);
-                        }
-                    }
-                    $product_relateds = $result['data']['list'];
-                }
-                $blog_relateds = [];
-                if (isset($data['blog_related']) && !empty($data['blog_related'])) {
-                    $this->httpClient->setApiName("content/getBlogList.json");
-                    $this->httpClient->setParameters([
-                        'filter_blog_ids' => $data['blog_related'],
-                    ]);
-                    $result = $this->httpClient->request("GET");
-                    if (!$result || 0 != $result['code']) {
-                        if (!$result) {
-                            throw new \Exception("接口网络错误，联系管理员！");
-                        } else {
-                            throw new \Exception($result["message"]);
-                        }
-                    }
-                    $blog_relateds = $result['data']['list'];
-                }
-                if ($data['image']) {
-                    $thumb = Util::resizeImage($data['image'], 100, 100);
-                }
-                $this->view->setVars($data);
-                $this->view->setVars([
-                    'blog_relateds'     => $blog_relateds,
-                    'product_relateds'  => $product_relateds,
+            } else {
+                $this->httpClient->setApiName("content/addBlog.json");
+                $this->httpClient->setParameters([
+                    'title'                 => $data['title'],
+                    'meta_title'            => $data['meta_title'],
+                    'status'                => $data['status'],
+                    'user_id'               => $data['user_id'],
+                    'hits'                  => $data['hits'],
+                    'image'                 => $data['image'],
+                    'video_code'            => $data['video_code'],
+                    'featured'              => $data['featured'],
+                    'sort_order'            => $data['sort_order'],
+                    'brief'                 => $data['brief'],
+                    'description'           => $data['description'],
+                    'meta_keyword'          => $data['meta_keyword'],
+                    'meta_description'      => $data['meta_description'],
+                    'tag'                   => $data['tag'],
+                    'created'               => $data['created'],
+                    'blog_blog_category'    => $data['blog_blog_category'],
+                    'blog_store'            => isset($data['blog_store']) ? $data['blog_store'] : [],
+                    'product_related'       => isset($data['product_related']) ? $data['product_related'] : [],
+                    'blog_related'          => isset($data['blog_related']) ? $data['blog_related'] : [],
                 ]);
+                $result = $this->httpClient->request("POST");
+                if (!$result || 0 != $result['code']) {
+                    if (!$result) {
+                        $error_warning = "接口网络错误，联系管理员！";
+                    } else {
+                        $error_warning = $result["message"];
+                        $this->view->setVars($result['data']);
+                    }
+                    $this->layoutMessage($error_warning, 1);
+                } else {
+                    $this->layoutMessage("新增博客分类成功！");
+                    return $this->response->redirect([
+                        'for' => 'backend/blog/list'
+                    ]);
+                }
             }
+            $product_relateds = [];
+            if (isset($data['product_related']) && !empty($data['product_related'])) {
+                $this->httpClient->setApiName("product/getProductList.json");
+                $this->httpClient->setParameters([
+                    'filter_product_ids' => $data['product_related'],
+                ]);
+                $result = $this->httpClient->request("GET");
+                if (!$result || 0 != $result['code']) {
+                    if (!$result) {
+                        throw new \Exception("接口网络错误，联系管理员！");
+                    } else {
+                        throw new \Exception($result["message"]);
+                    }
+                }
+                $product_relateds = $result['data']['list'];
+            }
+            $blog_relateds = [];
+            if (isset($data['blog_related']) && !empty($data['blog_related'])) {
+                $this->httpClient->setApiName("content/getBlogList.json");
+                $this->httpClient->setParameters([
+                    'filter_blog_ids' => $data['blog_related'],
+                ]);
+                $result = $this->httpClient->request("GET");
+                if (!$result || 0 != $result['code']) {
+                    if (!$result) {
+                        throw new \Exception("接口网络错误，联系管理员！");
+                    } else {
+                        throw new \Exception($result["message"]);
+                    }
+                }
+                $blog_relateds = $result['data']['list'];
+            }
+            if ($data['image']) {
+                $thumb = Util::resizeImage($data['image'], 100, 100);
+            }
+            $this->view->setVars($data);
+            $this->view->setVars([
+                'blog_relateds'     => $blog_relateds,
+                'product_relateds'  => $product_relateds,
+            ]);
         } else {
             $this->view->setVars([
                 'user_id' => $this->userid
@@ -395,6 +442,36 @@ class BlogController extends BaseController
             'thumb'                 => $thumb,
             'placeholder'           => $placeholder
         ]);
+    }
+
+    /**
+     * 删除博客
+     * @return array
+     * @throws \Exception
+     */
+    public function deleteAction()
+    {
+        $data = $this->request->get();
+        if (isset($data['selected'])) {
+            $this->httpClient->setApiName("content/deleteBlog.json");
+            $this->httpClient->setParameters([
+                'blog_ids' => $data['selected'],
+            ]);
+            $result = $this->httpClient->request("GET");
+
+            var_dump($result);
+            die();
+            if (!$result || 0 != $result['code']) {
+                if (!$result) {
+                    $error_warning = "接口网络错误，联系管理员！";
+                } else {
+                    $error_warning = $result["message"];
+                }
+                throw new \Exception($error_warning);
+            }
+            return ["status" => 0, "info" => "删除成功！", "data" => []];
+        }
+        return ["info" => "删除失败！", "data" => []];
     }
 
     /**
